@@ -15,7 +15,8 @@ from software.simulated_tests.simulated_test_fixture import (
 from proto.message_translation.tbots_protobuf import create_world_state
 from proto.ssl_gc_common_pb2 import Team
 
-# variables to pass into test zig zag movement parameters
+# constants
+# constants to pass into test zig zag movement parameters
 # The x value of the wall in front of the friendly robot
 front_wall_x = -2
 # each gate refers to the center to center distance between each wall and the front
@@ -24,6 +25,8 @@ gate_1 = 1
 gate_2 = gate_1 + 2
 gate_3 = gate_2 + 1
 robot_y_delta = 0.2
+# margin around destination point
+threshold = 0.05
 
 @pytest.mark.parametrize(
     "ball_initial_position,ball_initial_velocity,robot_initial_position, robot_destination",
@@ -34,7 +37,7 @@ robot_y_delta = 0.2
         (tbots.Point(1,2), tbots.Vector(0,0), tbots.Point(-2.5,0), tbots.Point(2.8,0)),
         # test drive in straight line with no obstacle
         (tbots.Point(1,2), tbots.Vector(0,0), tbots.Point(-2.5,0), tbots.Point(2.8,0)),
-        # test drive in straight line with friendly robot infront
+        # test drive in straight line with friendly robot infront   
         (tbots.Point(1,2), tbots.Vector(0,0), tbots.Point(-2.5,0), tbots.Point(2.8,0)),
         # test single enemy directly infront
         (tbots.Point(1,2), tbots.Vector(0,0), tbots.Point(0.7,0), tbots.Point(2,0)),
@@ -57,8 +60,13 @@ robot_y_delta = 0.2
         (tbots.Point(0.1,0), tbots.Vector(0,0), tbots.Point(-2.5,0), tbots.Point(2.8,0)),
     ],
 )
-
-    # TODO add validations
+def simulated_hrvo_tests(
+    ball_initial_position,
+    ball_initial_velocity,
+    robot_initial_position,
+    robot_destination_position
+    simulated_test_runner,
+):
     # Setup Robot
     simulated_test_runner.simulator_proto_unix_io.send_proto(
         WorldState,
@@ -81,6 +89,34 @@ robot_y_delta = 0.2
     simulated_test_runner.gamecontroller.send_ci_input(
         gc_command=Command.Type.FORCE_START, team=Team.BLUE
     )
+
+    # TODO set up tactics
+
+    # Always Validation
+    always_validation_sequence_set = [
+        [
+            
+        ]
+    ]
+
+    # Eventually Validation
+    eventually_validation_sequence_set = [
+        [
+            # Small circle around the destination point that the robot should be stationary within for 15 ticks
+            # Circle(robot_destination, threshold)
+            # robotStationaryInPolygon(1, expected_final_position, 15, world_ptr, yield)
+            circle_bound = tbots.Circle(robot_destination, threshold)
+            RobotEventuallyEntersRegion(
+                regions=[circle_bound]
+            ),
+        ]
+    ]
+
+    simulated_test_runner.run_test(
+        eventually_validation_sequence_set=eventually_validation_sequence_set,
+        always_validation_sequence_set=always_validation_sequence_set,
+    )
+     
 
 if __name__ == "__main__":
     pytest_main(__file__)
