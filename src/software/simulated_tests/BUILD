@@ -102,3 +102,16 @@ py_library(
     name = "speed_threshold_helpers",
     srcs = ["speed_threshold_helpers.py"],
 )
+
+
+py_test(
+    name = "simulated_hrvo_test",
+    srcs = [
+        "simulated_hrvo_test.py",
+    ],
+    deps = [
+        "//software/simulated_tests:simulated_test_fixture",
+        "//software/simulated_tests:validation",
+        requirement("pytest"),
+    ],
+)
