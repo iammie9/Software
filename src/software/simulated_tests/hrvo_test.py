@@ -62,7 +62,7 @@ def simulated_hrvo_tests(
    ball_initial_position,
    ball_initial_velocity,
    robot_initial_position,
-   robot_destination_position
+   robot_destination_position,
    simulated_test_runner,
 ):
    # Setup Robot
@@ -88,12 +88,11 @@ def simulated_hrvo_tests(
        gc_command=Command.Type.FORCE_START, team=Team.BLUE
    )
  
-   # TODO set up tactics
+   # Set up tactics
     params = AssignedTacticPlayControlParams()
     params.assigned_tactics[0].move.CopyFrom(
         MoveTactic(
             destination=robot_destination,
-            final_orientation=robot_desired_orientation,
             final_speed=0.0,
             dribbler_mode=DribblerMode.OFF,
             ball_collision_type=BallCollisionType.ALLOW,

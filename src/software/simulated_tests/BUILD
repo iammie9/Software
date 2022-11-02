@@ -105,9 +105,9 @@ py_library(
 
 
 py_test(
-    name = "simulated_hrvo_test",
+    name = "hrvo_test",
     srcs = [
-        "simulated_hrvo_test.py",
+        "hrvo_test.py",
     ],
     deps = [
         "//software/simulated_tests:simulated_test_fixture",
