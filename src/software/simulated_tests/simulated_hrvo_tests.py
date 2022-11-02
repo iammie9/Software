@@ -89,12 +89,31 @@ def simulated_hrvo_tests(
    )
  
    # TODO set up tactics
+    params = AssignedTacticPlayControlParams()
+    params.assigned_tactics[0].move.CopyFrom(
+        MoveTactic(
+            destination=robot_destination,
+            final_orientation=robot_desired_orientation,
+            final_speed=0.0,
+            dribbler_mode=DribblerMode.OFF,
+            ball_collision_type=BallCollisionType.ALLOW,
+            auto_chip_or_kick=AutoChipOrKick(autokick_speed_m_per_s=0.0),
+            max_allowed_speed_mode=MaxAllowedSpeedMode.PHYSICAL_LIMIT,
+            target_spin_rev_per_s=0.0,
+        )
+    )
+    simulated_test_runner.blue_full_system_proto_unix_io.send_proto(
+        AssignedTacticPlayControlParams, params
+    )
+
+    # Setup no tactics on the enemy side
+    params = AssignedTacticPlayControlParams()
+    simulated_test_runner.yellow_full_system_proto_unix_io.send_proto(
+        AssignedTacticPlayControlParams, params
+    )
  
    # Always Validation
    always_validation_sequence_set = [
-       [
-          
-       ]
    ]
  
    # Eventually Validation
