@@ -57,3 +57,65 @@ threshold = 0.05
        # TODO test robot avoiding ball obstacle
    ],
 )
+
+def simulated_hrvo_tests(
+   ball_initial_position,
+   ball_initial_velocity,
+   robot_initial_position,
+   robot_destination_position
+   simulated_test_runner,
+):
+   # Setup Robot
+   simulated_test_runner.simulator_proto_unix_io.send_proto(
+       WorldState,
+       create_world_state(
+           yellow_robot_locations=[], # currently no enemy robot positions
+           blue_robot_locations=[robot_initial_position], # tbots positions
+           ball_location=ball_initial_position,
+           ball_velocity=ball_initial_velocity,
+       ),
+   )
+ 
+   # These aren't necessary for this test, but this is just an example
+   # of how to send commands to the simulator.
+   #
+   # NOTE: The gamecontroller responses are automatically handled by
+   # the gamecontroller context manager class
+   simulated_test_runner.gamecontroller.send_ci_input(
+       gc_command=Command.Type.STOP, team=Team.UNKNOWN
+   )
+   simulated_test_runner.gamecontroller.send_ci_input(
+       gc_command=Command.Type.FORCE_START, team=Team.BLUE
+   )
+ 
+   # TODO set up tactics
+ 
+   # Always Validation
+   always_validation_sequence_set = [
+       [
+          
+       ]
+   ]
+ 
+   # Eventually Validation
+   # TODO add robotStationaryInPolygon(1, expected_final_position, 15, world_ptr, yield) to eventually_validation
+   eventually_validation_sequence_set = [
+       [
+           # Small circle around the destination point that the robot should be stationary within for 15 ticks
+           # Circle(robot_destination, threshold)
+           circle_bound = tbots.Circle(robot_destination, threshold)
+           RobotEventuallyEntersRegion(
+               regions=[circle_bound]
+           ),
+       ]
+   ]
+ 
+   simulated_test_runner.run_test(
+       eventually_validation_sequence_set=eventually_validation_sequence_set,
+       always_validation_sequence_set=always_validation_sequence_set,
+   )
+   
+ 
+if __name__ == "__main__":
+   pytest_main(__file__)
+
